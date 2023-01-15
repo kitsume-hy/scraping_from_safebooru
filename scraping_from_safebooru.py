@@ -22,18 +22,20 @@ def get_content_and_metainfo_from_image_url(image_url: str, save_dir: str, debug
     soup      = BeautifulSoup(responce.text,features="lxml")
 
     #画像の取得
-    image_content,image_name = save_image_from_image_url_soup(soup=soup)
+    image_content,image_name = get_content_from_url_soup(soup=soup)
     #タグの取得
-    tags   = get_tags_from_image_url_soup(soup=soup)
+    tags   = get_tags_from_url_soup(soup=soup)
     #ソースの取得
-    source = get_source_from_image_url_soup(soup=soup)
+    source = get_source_from_url_soup(soup=soup)
+    if source is None:
+        print(image_name,"sourceが取得できませんでした.")
     #tagとソースは同じdictにまとめる.
     tags["source"] = source
 
     #画像の保存
     if debug_mode:
         print( f"{image_name}を保存します.")
-        
+
     with open(os.path.join(save_dir,image_name),"wb") as f:
         f.write(image_content)
 
@@ -44,7 +46,7 @@ def get_content_and_metainfo_from_image_url(image_url: str, save_dir: str, debug
     with open(os.path.join(save_dir,json_name),"w") as f:
         json.dump(tags,f,indent=2)
 
-def save_image_from_image_url_soup(soup: BeautifulSoup):
+def get_content_from_url_soup(soup: BeautifulSoup):
     """画像urlのsoupから画像urlを取得して保存する."""
     
     image_url_elem = soup.find_all('meta', attrs={'property': 'og:image', 'content': True})
@@ -60,7 +62,7 @@ def save_image_from_image_url_soup(soup: BeautifulSoup):
 
     return image_content,image_name
 
-def get_source_from_image_url_soup(soup: BeautifulSoup):
+def get_source_from_url_soup(soup: BeautifulSoup):
     """画像urlのsoupからSourceのurlを取得する."""
 
     statistics_element = soup.find_all(id="stats")
@@ -72,16 +74,17 @@ def get_source_from_image_url_soup(soup: BeautifulSoup):
 
     #Sourceの部分のみ取得する.
     candidate_source_elem = [static_list_elem for static_list_elem in statistics_list_elements if "Source" in static_list_elem.text]
-    assert len( candidate_source_elem ) == 1 , "sourceが記述されているエレメントが1つではありません."
-    candidate_source_elem = candidate_source_elem[0]
-    #html_source = re.search("https?://[\w/:%#\$&\?\(\)~\.=\+\-]+",candidate_source_elem.text ).group()
-    html_source = candidate_source_elem.text.replace("Source: ","")
+    if len( candidate_source_elem ) == 1:
+        candidate_source_elem = candidate_source_elem[0]
+        #html_source = re.search("https?://[\w/:%#\$&\?\(\)~\.=\+\-]+",candidate_source_elem.text ).group()
+        html_source = candidate_source_elem.text.replace("Source: ","")
 
-    if html_source is None:
-        raise TypeError("html_sourceが取得できませんでした.")
+    else:
+        html_source = None
+
     return html_source
 
-def get_tags_from_image_url_soup(soup: BeautifulSoup):
+def get_tags_from_url_soup(soup: BeautifulSoup):
     """画像urlのsoupからtagを取得する."""
     
     # tagタイプごとにエレメントを取得する.
