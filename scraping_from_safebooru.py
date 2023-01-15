@@ -22,15 +22,21 @@ def get_content_and_metainfo_from_image_url(image_url: str, save_dir: str, debug
     soup      = BeautifulSoup(responce.text,features="lxml")
 
     #画像の取得
-    image_content,image_name = get_content_from_url_soup(soup=soup)
+    image_content,image_name,content_url = get_content_from_url_soup(soup=soup)
     #タグの取得
     tags   = get_tags_from_url_soup(soup=soup)
     #ソースの取得
     source = get_source_from_url_soup(soup=soup)
     if source is None:
-        print(image_name,"sourceが取得できませんでした.")
+        print(image_name,"sourceが正常に取得できませんでした.")
+
     #tagとソースは同じdictにまとめる.
-    tags["source"] = source
+    #画像ページのURL
+    tags["image_url"]   = image_url
+    #画像のURL
+    tags["content_url"] = content_url
+    #作者様
+    tags["original_source_url"] = source
 
     #画像の保存
     if debug_mode:
@@ -60,7 +66,7 @@ def get_content_from_url_soup(soup: BeautifulSoup):
 
     image_content = responce.content
 
-    return image_content,image_name
+    return image_content,image_name,image_url
 
 def get_source_from_url_soup(soup: BeautifulSoup):
     """画像urlのsoupからSourceのurlを取得する."""
