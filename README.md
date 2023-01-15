@@ -1,5 +1,20 @@
 ### safebooruからのスクレイピングコード.
 
+### ソース
+
+- scraping_from_safebooru.ipynb  
+ダウンロードするメインコード
+
+- scraping_from_safebooru.py  
+スクレイピング用関数
+
+- arrange_images_from_json_info.ipynb
+jsonファイルを読み込んで、データ準備する最低限のコード
+
+  - jsonからタグを抽出して、txtに出力. 
+  - タグを見てウインク画像だけをコピー
+
+
 ### memo
 
 - あまりに大きい画像サイズは圧縮を考えたほうがいいかも
