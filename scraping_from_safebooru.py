@@ -4,7 +4,11 @@ import re
 import os
 from bs4 import BeautifulSoup
 
-def get_content_and_metainfo_from_image_url(image_url: str, save_dir: str, debug_mode: bool):
+def get_content_and_metainfo_from_image_url(
+    image_url: str, 
+    save_dir: str, 
+    debug_mode: bool
+    ):
     """画像コンテンツurlから画像とメタデータを取得して保存する.
 
     Args:
@@ -48,9 +52,16 @@ def get_content_and_metainfo_from_image_url(image_url: str, save_dir: str, debug
     #拡張子無しのファイル名
     image_name_no_extension = os.path.splitext(image_name)[0]
     json_name = f"{image_name_no_extension}.json"
+    txt_name  = f"{image_name_no_extension}.txt"
 
     with open(os.path.join(save_dir,json_name),"w") as f:
         json.dump(tags,f,indent=2)
+
+    tag_list = tags["character"] + tags["general"]
+    tag_txt  = ", ".join(tag_list) 
+
+    with open(os.path.join(save_dir,txt_name),"w") as f:
+        f.write(tag_txt)
 
 def get_content_from_url_soup(soup: BeautifulSoup):
     """画像urlのsoupから画像urlを取得して保存する."""
